@@ -1,3 +1,8 @@
+dotenv
+fastapi
+
 ibm-watsonx-ai==1.4.7
 matplotlib==3.10.7
 numpy==2.3.4
+
+uvicorn

@@ -37,6 +37,7 @@ def restaurant_data_structure_prompt_generation(restaurant_paragraph):
     Identify, within the given the 'Restaurant description', the name, location, restaurant type,
     food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant.
     Then, use this information to generate an output JSON file, as shown in the example below.
+    Hide your reasoning and thought process, and ommit any explanations. Only output the final JSON file.
 
     Restaurant description:
     {restaurant_paragraph}
@@ -89,16 +90,18 @@ def main():
     if response.status_code == 200:
         print("Streamming the response from Ollama...")
 
+        final_response = ""
         for line in response.iter_lines(decode_unicode=True):
             if line:
                 try:
                     json_data = json.loads(line)
                     if "message" in json_data and "content" in json_data["message"]:
                         content = json_data["message"]["content"]
-                        print(content, end="", flush=True)
+                        final_response += content #print(content, end="", flush=True)
                 except json.JSONDecodeError:
                     print(f"Error decoding JSON from line: {line}")
-            print()
+
+        print(f"Final Response:\n{final_response}")
     else:
         print(f"Request failed with status code: {response.status_code}")
         print(response.text)

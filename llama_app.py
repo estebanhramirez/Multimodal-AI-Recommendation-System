@@ -23,12 +23,12 @@ def generate_response(data: PromptRequest, authorization: str = Header(None)):
     # Verify the API Key passed in the header
     if authorization != f"Bearer {API_KEY}":
         raise HTTPException(status_code=401, detail="Unauthorized")
-    
+
     # Example: Send the prompt to a local Ollama instance running on port 11434
     try:
         ollama_res = requests.post(
             "http://127.0.0.1:11434/api/generate",
-            json={"model": "llama2:latest", "prompt": data.prompt, "stream": False},
+            json={"model": "llama3.2:3b", "prompt": data.prompt, "stream": False},
             timeout=60
         )
         response_json = ollama_res.json()

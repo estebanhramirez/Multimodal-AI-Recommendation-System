@@ -1,6 +1,6 @@
-# =======================================================================
+# ==========================================================================================================
 # Imports
-# =======================================================================
+# ==========================================================================================================
 
 import base64
 
@@ -12,9 +12,9 @@ from typing import List, Optional
 
 
 
-# =======================================================================
-# Data models
-# =======================================================================
+# ==========================================================================================================
+# Data Schemas
+# ==========================================================================================================
 
 class Restaurant(BaseModel):
     name: str
@@ -30,9 +30,9 @@ class Restaurant(BaseModel):
 
 
 
-# =======================================================================
+# ==========================================================================================================
 # Prompt templates
-# =======================================================================
+# ==========================================================================================================
 
 def restaurant_data_structure_prompt_generation(restaurant_paragraph):
     EXAMPLE_RESTAURANT_PARAGRAPH = """
@@ -75,70 +75,49 @@ def restaurant_data_structure_prompt_generation(restaurant_paragraph):
     Output:
     {EXAMPLE_OUTPUT}
     """
+
     return (base_system_msg, base_user_prompt)
 
 
 def JSON_auto_repair_prompts(candidate_json_output, error_message):
     auto_repair_system_msg = """
-    You are a function that takes a 'Candidate JSON' and an 'Error message' as input, and returns a JSON file.
+    You are a 'Data Transformation Engine'.
+    Your purpose is to convert unstructured textual data into structured JSON files.
     """
 
-    auto_repair_prompt = """
+    auto_repair_prompt = f"""
     Task:
-    Repair the given 'Candidate JSON' to fix the 'Error message'.
-    Hide your reasoning and thought process, and ommit any messages and explanations.
-    Output ONLY the JSON file, as shown in the example below.
-
+    Identify, within the given 'Candidate JSON', the name, location, restaurant type, food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant.
+    Use this information to generate an proper JSON file.
+    Hide your reasoning and thought process, and ommit any messages or explanations: only output the final JSON file.
+    
     Candidate JSON:
     {candidate_json_output}
 
-    Error message:
+    The following error message can help you identify the issues in the Candidate JSON:
     {error_message}
-
-    Example:
-        Input Candidate JSON: 
-            {
-            "name": "The Gilded Artichoke",
-            "location": "Silver Lake",
-            "type": "upscale bistro",
-            "food_style": "Farm-to-Table Californian",
-            "rating": 4.5,
-            "price_range": 3,
-            "signatures": [
-                "lavender-rubbed roasted chicken",
-                "delicate heirloom tomato tarts"
-            ],
-            "vibe": "bohemian chic energy",
-            "environment": "a high-end greenhouse with reclaimed wood and floor-to-ceiling windows"
-            "shortcomings": []
-            }
-        Input Error message: [{"type":"json_invalid","loc":[],"msg":"Invalid JSON: expected `,` or `}` at line 15 column 1","input":"\n{\n\"name\": \"The Gilded Artichoke\",\n\"location\": \"Silver Lake\",\n\"type\": \"upscale bistro\",\n\"food_style\": \"Farm-to-Table Californian\",\n\"rating\": 4.5,\n\"price_range\": 3,\n\"signatures\": [\n    \"lavender-rubbed roasted chicken\",\n    \"delicate heirloom tomato tarts\"\n],\n\"vibe\": \"bohemian chic energy\",\n\"environment\": \"a high-end greenhouse with reclaimed wood and floor-to-ceiling windows\"\n\"shortcomings\": []\n}","ctx":{"error":"expected `,` or `}` at line 15 column 1"},"url":"https://errors.pydantic.dev/2.14/v/json_invalid"}]
-
-        Output:
-            {
-                "name": "The Gilded Artichoke",
-                "location": "Silver Lake",
-                "type": "upscale bistro",
-                "food_style": "Farm-to-Table Californian",
-                "rating": 4.5,
-                "price_range": 4,
-                "signatures": [
-                    "lavender-rubbed roasted chicken",
-                    "delicate heirloom tomato tarts"
-                ],
-                "vibe": "high-end greenhouse",
-                "environment": "an oasis of reclaimed wood and floor-to-ceiling windows in the hills of Silver Lake",
-                "shortcomings": []
-            }
     """
 
     return (auto_repair_system_msg, auto_repair_prompt)
 
 
+def image_caption_prompt_template(food_name):
+    # food_name: the food name of the recipe
 
-# =======================================================================
+    ### Step 3.1: Design the prompts
+    image_caption_system_msg = "Your objective is to generate high-quality textual descriptions of images."
+    image_caption_prompt_txt = """
+    Task:
+    list the ingredients in the image.
+    """
+
+    return (image_caption_system_msg, image_caption_prompt_txt)
+
+
+
+# ==========================================================================================================
 # LLM functions
-# =======================================================================
+# ==========================================================================================================
 
 def unwrap_response(response):
     if response.status_code == 200:
@@ -172,7 +151,7 @@ def llm_model(system_msg, user_prompt):
     url = "http://127.0.0.1:11434/api/chat"
 
     payload = {
-        "model": "llama2:latest",
+        "model": "llama3.2:3b",
         "messages": [ 
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_prompt}
@@ -222,23 +201,10 @@ def vision_llm(system_msg, prompt_txt, image_path):
     return unwrap_response(response)
 
 
-def image_caption_prompt_template(food_name):
-    # food_name: the food name of the recipe
 
-    ### Step 3.1: Design the prompts
-    image_caption_system_msg = "Your objective is to generate high-quality textual descriptions of images."
-    image_caption_prompt_txt = """
-    Task:
-    Generate an image caption for the given image.
-    Focus on relevant visual details, such as ingredients, cooking style, and presentation, while avoiding unnecessary or speculative information.
-    """
-
-    return (image_caption_system_msg, image_caption_prompt_txt)
-
-
-# =======================================================================
+# ==========================================================================================================
 # Execution
-# =======================================================================
+# ==========================================================================================================
 
 def legacy_main():
     # 1: Load the data
@@ -249,9 +215,9 @@ def legacy_main():
     # 2: Split the restaurant paragraphs into a Python list
     ## 2.1: Split the restaurant paragraphs into list (hint: use .split('\n\n')
     restaurant_list = data.split('\n\n')
-    ## 2.2: Since the first item is the dataset name, we remove it
-    restaurant_list = restaurant_list[1:5]
 
+    ## 2.2: Since the first item is the dataset name, we remove it
+    restaurant_list = restaurant_list[1:]
 
     structured_restaurant_lists = []
     for i, restaurant_paragraph in enumerate(restaurant_list):
@@ -265,22 +231,17 @@ def legacy_main():
             print(f"Validating JSON Output: {candidate_json_output}")
             try:
                 restaurant_data = Restaurant.model_validate_json(candidate_json_output)
-                print(f"Success! Validated: {restaurant_data.name}")
+                print(f"Success! Structured the {i}-th paragraph: {restaurant_data.name}")
                 error_flag = False
             except ValidationError as error_message:
                 auto_repair_system_msg, auto_repair_prompt = JSON_auto_repair_prompts(candidate_json_output, error_message)
                 candidate_json_output = llm_model(system_msg=auto_repair_system_msg, user_prompt=auto_repair_prompt)
                 print(f"Validation failed: {error_message.json()}")
 
-        structured_restaurant_lists.append(restaurant_data)
-
-        if (i+1)%20 == 0:
-            print(f'{i+1} out of {len(restaurant_list)} is done')
+        structured_restaurant_lists.append(candidate_json_output)
 
     print(len(structured_restaurant_lists))
-    print(structured_restaurant_lists[100])
-    print(type(structured_restaurant_lists[100]))
-
+    print(type(structured_restaurant_lists))
 
     structured_restaurant_lists_json = [json.loads(response) for response in structured_restaurant_lists]
 
@@ -288,7 +249,7 @@ def legacy_main():
     for i, response in enumerate(structured_restaurant_lists_json):
         response['itemId'] = 1000001 + i
         structured_restaurant_lists_json[i] = response
-        
+
     filename = 'structured_restaurant_data.json'
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(structured_restaurant_lists_json, f, indent=4)
@@ -303,4 +264,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    legacy_main()

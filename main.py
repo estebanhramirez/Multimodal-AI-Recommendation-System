@@ -34,68 +34,61 @@ class Restaurant(BaseModel):
 # Prompt templates
 # ==========================================================================================================
 
-def restaurant_data_structure_prompt_generation(restaurant_paragraph):
-    EXAMPLE_RESTAURANT_PARAGRAPH = """
-    Down in **Santa Monica**, **Mar de Cortez** serves as a **sun-drenched**, **casual taqueria** specializing in **Baja-style seafood**. With a **4.2/5** rating, it captures the salt-air energy of the coast through its signature beer-battered snapper tacos and zesty octopus ceviche, making it a premier spot for open-air dining near the pier. Price range: $
-    """
-
-    EXAMPLE_OUTPUT = """
+JSON_FORMAT = """
         {
-        "name": "Mar de Cortez",
-        "location": "Santa Monica",
-        "type": "casual taqueria",
-        "food_style": "Baja-style seafood",
-        "rating": 4.2,
-        "price_range": 1,
-        "signatures": [
-            "beer-battered snapper tacos",
-            "zesty octopus ceviche"
-        ],
-        "vibe": "salt-air energy",
-        "environment": "a premier sun-drenched spot for open-air dining near the pier."
-        "shortcomings": []
+        "name": str,
+        "location": str,
+        "type": str,
+        "food_style": str,
+        "rating": Optional[float],
+        "price_range": Optional[int],
+        "signatures": List[str],
+        "vibe": Optional[str],
+        "environment": str,
+        "shortcomings": List[str]
         }
     """
 
-    base_system_msg = f"""
-    You are a 'Data Transformation Engine'.
-    Your purpose is to convert unstructured textual data into structured JSON files.
-    """
+def restaurant_data_structure_prompt_generation(restaurant_paragraph):
+
+    base_system_msg = "You are a 'Data Transformation Engine'. Your purpose is to convert unstructured textual data into structured JSON files."
 
     base_user_prompt = f"""
     Task:
-    Identify, within the given 'Restaurant description', the name, location, restaurant type, food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant. Use this information to generate an output JSON file, as shown in the example below. For the 'price range' field, convert the dollar signs (e.g., $$) into an integer representing the number of dollar symbols.
-    Hide your reasoning and thought process, and ommit any messages or explanations: only output the final JSON file, as shown in the example below.
+    Identify, within the given 'Restaurant description' below, the name, location, restaurant type, food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant.
+    Use this information to generate an output JSON file, with the structure shown below. For the 'price range' field, convert the dollar signs (e.g., $$) into an integer representing the number of dollar symbols.
+    Hide your reasoning and thought process. Ommit any messages or explanations.
+    Output only the final JSON file as a plain string.
 
     Restaurant description:
     {restaurant_paragraph}
 
-    Example:
-    Input Restaurant Description: {EXAMPLE_RESTAURANT_PARAGRAPH}
-    Output:
-    {EXAMPLE_OUTPUT}
+    Structure of the output JSON file:
+    {JSON_FORMAT}
     """
 
     return (base_system_msg, base_user_prompt)
 
 
 def JSON_auto_repair_prompts(candidate_json_output, error_message):
-    auto_repair_system_msg = """
-    You are a 'Data Transformation Engine'.
-    Your purpose is to convert unstructured textual data into structured JSON files.
-    """
+    
+    auto_repair_system_msg = "Your purpose is to convert defective JSON candidates into proper JSON files."
 
     auto_repair_prompt = f"""
     Task:
     Identify, within the given 'Candidate JSON', the name, location, restaurant type, food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant.
-    Use this information to generate an proper JSON file.
-    Hide your reasoning and thought process, and ommit any messages or explanations: only output the final JSON file.
-    
+    Use this information to generate an proper JSON file, with the structure shown below.
+    Hide your reasoning and thought process. Ommit any messages or explanations.
+    Output only the final JSON file as a plain string.
+
     Candidate JSON:
     {candidate_json_output}
 
     The following error message can help you identify the issues in the Candidate JSON:
     {error_message}
+
+    Structure of the output JSON file:
+    {JSON_FORMAT}
     """
 
     return (auto_repair_system_msg, auto_repair_prompt)
@@ -108,7 +101,7 @@ def image_caption_prompt_template(food_name):
     image_caption_system_msg = "Your objective is to generate high-quality textual descriptions of images."
     image_caption_prompt_txt = """
     Task:
-    list the ingredients in the image.
+    What do you see in the image?
     """
 
     return (image_caption_system_msg, image_caption_prompt_txt)
@@ -197,6 +190,9 @@ def vision_llm(system_msg, prompt_txt, image_path):
     }
 
     response = requests.post(url, json=payload, stream=True)
+    if response.status_code != 200:
+        print("Status code:", response.status_code)
+        print("Response:", response.text[:1000])
 
     return unwrap_response(response)
 
@@ -264,4 +260,5 @@ def main():
 
 
 if __name__ == "__main__":
-    legacy_main()
+    #legacy_main()
+    main()

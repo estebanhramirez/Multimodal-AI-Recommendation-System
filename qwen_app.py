@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Header
@@ -14,11 +15,11 @@ API_KEY = os.getenv('API_KEY')
 
 class PromptRequest(BaseModel):
     prompt: str
-
+    image: Optional[str] = None
 
 
 app = FastAPI()
-@app.post("/generate")
+@app.post("/api/chat") #@app.post("/generate")
 def generate_response(data: PromptRequest, authorization: str = Header(None)):
     # Verify the API Key passed in the header
     if authorization != f"Bearer {API_KEY}":
@@ -27,8 +28,11 @@ def generate_response(data: PromptRequest, authorization: str = Header(None)):
     # Example: Send the prompt to a local Ollama instance running on port 11434
     try:
         ollama_res = requests.post(
-            "http://127.0.0.1:11434/api/generate",
-            json={"model": "qwen3-vl:4b", "prompt": data.prompt, "stream": False},
+            "http://127.0.0.1:11434/api/chat",
+            json={
+                "model": "qwen3-vl:4b",
+                "prompt": data.prompt,
+                "stream": False},
             timeout=60
         )
         response_json = ollama_res.json()

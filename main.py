@@ -34,6 +34,8 @@ class Restaurant(BaseModel):
 # Prompt templates
 # ==========================================================================================================
 
+# Textual LLM
+
 JSON_FORMAT = """
         {
         "name": str,
@@ -56,9 +58,9 @@ def restaurant_data_structure_prompt_generation(restaurant_paragraph):
     base_user_prompt = f"""
     Task:
     Identify, within the given 'Restaurant description' below, the name, location, restaurant type, food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant.
-    Use this information to generate an output JSON file, with the structure shown below. For the 'price range' field, convert the dollar signs (e.g., $$) into an integer representing the number of dollar symbols.
+    Use this information to generate an output JSON file, with the exact structure and types shown below. For the 'price range' field, convert the dollar signs (e.g., $$) into an integer representing the number of dollar symbols.
     Hide your reasoning and thought process. Ommit any messages or explanations.
-    Output only the final JSON file as a plain string.
+    Output only the final JSON file, without quotation marks, as a plain string.
 
     Restaurant description:
     {restaurant_paragraph}
@@ -77,9 +79,9 @@ def JSON_auto_repair_prompts(candidate_json_output, error_message):
     auto_repair_prompt = f"""
     Task:
     Identify, within the given 'Candidate JSON', the name, location, restaurant type, food style, rating, price range, signature dishes, specialties and shortcomings, of the restaurant.
-    Use this information to generate an proper JSON file, with the structure shown below.
+    Use this information to generate an proper JSON file, with the exact structure and types shown below.
     Hide your reasoning and thought process. Ommit any messages or explanations.
-    Output only the final JSON file as a plain string.
+    Output only the final JSON file, without quotation marks, as a plain string..
 
     Candidate JSON:
     {candidate_json_output}
@@ -93,6 +95,8 @@ def JSON_auto_repair_prompts(candidate_json_output, error_message):
 
     return (auto_repair_system_msg, auto_repair_prompt)
 
+
+# Vision LLM
 
 def image_caption_prompt_template(food_name):
     # food_name: the food name of the recipe
@@ -129,9 +133,12 @@ def unwrap_response(response):
         return(f"Request failed with status code: {response.status_code}")
 
 
+# Textual LLM
+
 def llm_model(system_msg, user_prompt):
     """
-    Function to send a request to the LLM model and stream the response.
+    Function to send a model execution request to the Ollama server running locally through port 11434,
+    and receive and stream the response from the model.
 
     Args:
         system_msg (str): The system message to provide context for the LLM.
@@ -144,7 +151,7 @@ def llm_model(system_msg, user_prompt):
     url = "http://127.0.0.1:11434/api/chat"
 
     payload = {
-        "model": "llama3.2:3b",
+        "model": "phi4-mini:3.8b",
         "messages": [ 
             {"role": "system", "content": system_msg},
             {"role": "user", "content": user_prompt}
@@ -155,6 +162,8 @@ def llm_model(system_msg, user_prompt):
 
     return unwrap_response(response)
 
+
+# Vision LLM
 
 def vision_llm(system_msg, prompt_txt, image_path):
     """
@@ -260,5 +269,5 @@ def main():
 
 
 if __name__ == "__main__":
-    #legacy_main()
-    main()
+    legacy_main()
+    #main()

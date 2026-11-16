@@ -277,6 +277,16 @@ def main():
     print("✅ Demo 1 complete")
 
 
+    ids, docs, metas, dists = retrieve_images_by_image(image_db, query_image_path="query_image.jpeg", k=5, where=None)
+
+    if len(ids) == 0:
+        print("⚠️ No results found with current filter.")
+    else:
+        print_hits(ids, docs, metas, dists, title="Demo 3 — Image similarity search (image→image)")
+
+    print("✅ Demo 3 complete")
+
+
 # ==========================================================================================================
 # Entry point
 # ==========================================================================================================

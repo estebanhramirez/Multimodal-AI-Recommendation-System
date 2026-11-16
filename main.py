@@ -86,7 +86,7 @@ def JSON_auto_repair_prompts(candidate_json_output, error_message):
     Candidate JSON:
     {candidate_json_output}
 
-    The following error message can help you identify the issues in the Candidate JSON:
+    Error:
     {error_message}
 
     Structure of the output JSON file:
@@ -117,6 +117,15 @@ def image_caption_prompt_template(food_name):
 # ==========================================================================================================
 
 def unwrap_response(response):
+    """
+    Function to unwrap the response from the Ollama server and extract the content from the streamed JSON lines.
+
+    Args:
+        response (requests.Response): The response object from the Ollama server.
+    Returns:
+        str: The final response content extracted from the streamed JSON lines.
+    """
+
     if response.status_code == 200:
         final_response = ""
         for line in response.iter_lines(decode_unicode=True):

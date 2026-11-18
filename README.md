@@ -1,6 +1,8 @@
 # Multimodal-AI-Recommendation-System
 Repository with the Python code used for implementing a Multimodal (AI-powered) recommendation system.
 
+![System arcihtecture](readme/Multimodal_RecommendationSystem.png)  
+
 ## 1. Create the project directory
 
 ### 1.1. Create the root folder

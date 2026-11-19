@@ -71,7 +71,7 @@ def embed_texts(texts, batch_size=64):
 # ==========================================================================================================
 
 @server.tool()
-def retrieve_articles(chromadb_dir: str, query: str, k: int = 5, where: dict | None = None):
+def retrieve_articles(chromadb_dir: str, query: str, k: int = 1, where: dict | None = None):
     """
     Function to retrieve similar articles from the article database based on a text query,
     with optional metadata filtering.

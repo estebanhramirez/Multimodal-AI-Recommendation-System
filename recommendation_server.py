@@ -71,11 +71,13 @@ def embed_texts(texts, batch_size=64):
 # ==========================================================================================================
 
 @server.tool()
-def retrieve_articles(chromadb, query: str, k: int = 5, where: dict | None = None):
+def retrieve_articles(chromadb_dir: str, query: str, k: int = 5, where: dict | None = None):
     """
     Function to retrieve similar articles from the article database based on a text query,
     with optional metadata filtering.
     Args:
+        chromadb_dir: str
+            The directory where the Chroma database is persisted.
         query: str
             The text query to search for.
         k: int
@@ -91,6 +93,11 @@ def retrieve_articles(chromadb, query: str, k: int = 5, where: dict | None = Non
             - metas: List of metadata dictionaries of the top-k results.
             - dists: List of distances (similarity scores) of the top-k results.
     """
+
+    chromadb = Chroma(
+        collection_name="restaurant_articles",
+        persist_directory=chromadb_dir,
+    )
 
     q_vec = embed_texts([query])[0]  # 384-d, cosine-ready
 
@@ -112,7 +119,7 @@ def initialize_persistent_restaurant_database():
     with open("../Data/structured_restaurant_data.json", "r") as f:
         restaurants = json.load(f)
 
-    print(f"✅ Loaded restaurants: {len(restaurants)}")
+    print(f"Loaded restaurants: {len(restaurants)}")
 
 
     # --------------------------------------- Docs ---------------------------------------
@@ -145,14 +152,14 @@ def initialize_persistent_restaurant_database():
             )
         )
 
-    print("✅ article docs:", len(article_docs))
+    print("article docs:", len(article_docs))
 
     
     # --------------------------------------- Embeddings ---------------------------------------
 
     embeddings = embed_texts([d.page_content for d in article_docs]).tolist()
 
-    DB_DIR = str(("chroma_multimodal").resolve())
+    DB_DIR = str("chroma_multimodal")
 
     if os.path.isdir(DB_DIR):
         shutil.rmtree(DB_DIR)  # Reset vector DB (important for reruns)
@@ -172,7 +179,7 @@ def initialize_persistent_restaurant_database():
         metadatas=[d.metadata for d in article_docs],
     )
 
-    print("✅ Article DB ready")
+    print("Article DB ready")
 
 
 

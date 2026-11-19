@@ -148,6 +148,9 @@ Run the FastAPI app to handle prompts and communicate with the local LLM<br>
 python "~/<prefix_path>/<project_name>/Repo/app.py"
 ```
 
+<br>
+<br>
+
 
 ## Run the Recommendation Client (Connect to the Recommendation Server)
 Run the Recommendation Client to connect with the Recommendation Server that provides access to the multi-modal retrieval system<br>
@@ -156,4 +159,37 @@ Run the Recommendation Client to connect with the Recommendation Server that pro
 ```
 python recommendation_client.py recommendation_server.py
 ```
+**Result `[Command Prompt]`:**
+```
+✓ Connected to MCP server
 
+=== MCP Client ===
+Commands: tools | call | resources | read | prompts | prompt | quit
+
+> tools                                                                       
+  • retrieve_articles: Function to retrieve similar articles from the article database based on a text query,
+with optional metadata filtering.
+Args:
+    chromadb_dir: str
+        The directory where the Chroma database is persisted.
+    query: str
+        The text query to search for.
+    k: int
+        The number of top results to return.
+    where: dict | None
+        Optional metadata filtering conditions. For example:
+            where = {"cuisine": "Italian", "location": "New York"}
+        If None, no filtering is applied.
+Returns:
+    Four lists: ids, docs, metas, dists
+        - ids: List of document IDs of the top-k results.
+        - docs: List of document contents of the top-k results.
+        - metas: List of metadata dictionaries of the top-k results.
+        - dists: List of distances (similarity scores) of the top-k results.
+  • initialize_persistent_restaurant_database: None
+> call
+  Tool name: retrieve_articles
+  Arguments (as JSON, for example, {"text": "hello"}): 
+  {"chromadb_dir": "chroma_multimodal", "query": "Cozy Mediterranean", "k": 3}
+  Result: [["rest_15","rest_134","rest_130"],["Restaurant: The Blue Fig\nCuisine: Eastern Mediterranean\nLocation: Los Feliz","Restaurant: The Marble Arch\nCuisine: Mediterranean\nLocation: Laguna Beach","Restaurant: The Velvet Olive\nCuisine: Modern Italian\nLocation: Los Gatos"],[{"source":"restaurant","location":"Los Feliz","cuisine":"Eastern Mediterranean","doc_id":"rest_15"},{"source":"restaurant","doc_id":"rest_134","location":"Laguna Beach","cuisine":"Mediterranean"},{"source":"restaurant","cuisine":"Modern Italian","doc_id":"rest_130","location":"Los Gatos"}],[0.9135939478874207,0.9808933138847351,0.9998288750648499]]
+```

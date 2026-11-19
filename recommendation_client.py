@@ -49,7 +49,7 @@ async def call_tool(tool_name: str, arguments: dict) -> dict:
 
 async def main():
     if len(sys.argv) < 2:
-        print("Usage: python mcp_client.py <server_script>")
+        print("Usage: python recommendation_client.py <server_script>")
         sys.exit(1)
 
     client = MCPClient()

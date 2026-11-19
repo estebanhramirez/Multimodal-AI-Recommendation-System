@@ -251,8 +251,11 @@ async def node_retrieve_candidates(client, state: dict) -> dict:
         print(f"PROMPT: {prompt}")
         tuple_res = await client.call_tool("retrieve_articles", {"chromadb_dir": "chroma_multimodal", "query": prompt})
         ids, docs, metas, dists = parse_text_content_lists(tuple_res)
+        print(f"IDS RETRIEVED: {type(ids)}\n")
         print(f"IDS RETRIEVED: {ids}\n")
+        print(f"DOCS RETRIEVED: {type(docs)}\n")
         print(f"DOCS RETRIEVED: {docs}\n")
+        print(f"META RETRIEVED: {type(metas)}\n")
         print(f"META RETRIEVED: {metas}\n")
         restaurants = docs
         recipes = docs
@@ -275,22 +278,26 @@ def node_analyze_trends(state: dict) -> dict:
     
     user_message = f"""Analyze current food trends in these options:
     
-    Restaurants: {json.dumps(restaurants[:5], indent=2)}
-    Recipes: {json.dumps(recipes[:5], indent=2)}
+    Restaurants: {''.join(restaurants)}
+    Recipes: {''.join(recipes)}
     
     Identify 3-5 relevant trends and explain how they align with modern dining culture.
     
     Return JSON: {{"trends": [{{"name": str, "description": str, "relevance": str}}]}}
+
+    Hide your reasoning and thought process. Ommit any messages or explanations.
+    Output only the final JSON file, without quotation marks, as a plain string.
     """
     
     try:
         response = call_agent("food_trend_analyst", user_message)
+        print(f"RESPONSE: {response}")
         trend_analysis = json.loads(response)
         print(f"Identified {len(trend_analysis.get('trends', []))} trends")
     except Exception as e:
         print(f"Error analyzing trends: {e}")
         trend_analysis = {"error": str(e)}
-    
+
     state["trend_analysis"] = trend_analysis
     return (state)
 
@@ -313,10 +320,14 @@ def node_analyze_styles(state: dict) -> dict:
     {profile}.
     
     Return a list of food styles and dining experiences that match the user preferences.
+    
+    Hide your reasoning and thought process. Ommit any messages or explanations.
+    Output only the final JSON file, without quotation marks, as a plain string.
     """
     
     try:
         response = call_agent("food_style_expert", user_message)
+        print(f"RESPONSE: {response}")
         style_analysis = json.loads(response)
         print(f"Style analysis completed")
     except Exception as e:
@@ -344,10 +355,14 @@ def node_evaluate_nutrition(state: dict) -> dict:
     Check dietary restrictions, allergens, and nutritional balance.
     
     Return JSON: {{"compliant_items": [], "flagged_items": [], "nutritional_highlights": []}}
+
+    Hide your reasoning and thought process. Ommit any messages or explanations.
+    Output only the final JSON file, without quotation marks, as a plain string.
     """
     
     try:
         response = call_agent("nutrition_expert", user_message)
+        print(f"RESPONSE: {response}")
         nutrition_analysis = json.loads(response)
         print(f"Nutrition evaluation completed")
     except Exception as e:
@@ -363,12 +378,12 @@ def node_generate_recommendations(state: dict) -> dict:
     print("\n[Phase 4] Generating final recommendations...")
     
     user_message = f"""Synthesize these insights into top 5 restaurant and top 5 recipe recommendations:
-    User Profile: {json.dumps(state['user_profile'], indent=2)}
-    Restaurants: {json.dumps(state['retrieved_restaurants'][:10], indent=2)}
-    Recipes: {json.dumps(state['retrieved_recipes'][:10], indent=2)}
-    Trends: {json.dumps(state['trend_analysis'], indent=2)}
-    Styles: {json.dumps(state['style_analysis'], indent=2)}
-    Nutrition: {json.dumps(state['nutrition_analysis'], indent=2)}
+    User Profile: {state['user_profile']}
+    Restaurants: {state['retrieved_restaurants']}
+    Recipes: {state['retrieved_recipes']}
+    Trends: {state['trend_analysis']}
+    Styles: {state['style_analysis']}
+    Nutrition: {state['nutrition_analysis']}
     
     Return JSON:
     {{

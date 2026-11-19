@@ -1,13 +1,24 @@
+anthropic==0.84.0
+
 dotenv==0.9.9
 fastapi==0.162.5
 
+fastmcp==3.1.0
+
+gradio==6.9.0
+
 ibm-watsonx-ai==1.4.7
 
-langchain==0.3.27
+langchain
 langchain-community==0.3.31
 langchain-chroma==0.2.6
+langchain-ibm==1.0.4
+langchain-core==1.2.18
 
 matplotlib==3.10.7
+
+mcp==1.25.0
+
 numpy==2.3.4
 pillow==10.4.0
 

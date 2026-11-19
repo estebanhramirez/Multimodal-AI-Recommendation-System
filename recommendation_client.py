@@ -378,12 +378,12 @@ def node_generate_recommendations(state: dict) -> dict:
     print("\n[Phase 4] Generating final recommendations...")
     
     user_message = f"""Synthesize these insights into top 5 restaurant and top 5 recipe recommendations:
-    User Profile: {state['user_profile']}
-    Restaurants: {state['retrieved_restaurants']}
-    Recipes: {state['retrieved_recipes']}
-    Trends: {state['trend_analysis']}
-    Styles: {state['style_analysis']}
-    Nutrition: {state['nutrition_analysis']}
+    User Profile: {json.dumps(state['user_profile'], indent=2)}
+    Restaurants: {"".join(state['retrieved_restaurants'])}
+    Recipes: {"".join(state['retrieved_recipes'])}
+    Trends: {json.dumps(state['trend_analysis'], indent=2)}
+    Styles: {json.dumps(state['style_analysis'], indent=2)}
+    Nutrition: {json.dumps(state['nutrition_analysis'], indent=2)}
     
     Return JSON:
     {{

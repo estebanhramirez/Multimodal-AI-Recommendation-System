@@ -146,3 +146,14 @@ Run the FastAPI app to handle prompts and communicate with the local LLM<br>
 **Command `[Command Prompt]`:**
 ```
 python "~/<prefix_path>/<project_name>/Repo/app.py"
+```
+
+
+## Run the Recommendation Client (Connect to the Recommendation Server)
+Run the Recommendation Client to connect with the Recommendation Server that provides access to the multi-modal retrieval system<br>
+<br>
+**Command `[Command Prompt]`:**
+```
+python recommendation_client.py recommendation_server.py
+```
+
